@@ -75,6 +75,7 @@ def parse_command_line():
     from optparse import OptionParser
 
     parser = OptionParser(usage=USAGE)
+    parser.add_option("--zeekid")
     parser.add_option("--username")
     parser.add_option("--password")
     parser.add_option("--blog", metavar="BLOGID")
@@ -107,7 +108,9 @@ if __name__ == '__main__':
             dump_blogpost(args[0])
         else:
             title, content = read_blogpost(args[0], opts.rawhtml, opts.title)
+            content = content.format(**{ 'zeekid' : opts.zeekid })
             service = login(opts.username, opts.password)
+            
             if opts.change:
                 entry = service.Get('/feeds/%s/posts/default/%s' % (opts.blog, opts.change))
                 update_entry(entry, title, content)
