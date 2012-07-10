@@ -1,9 +1,15 @@
-# here we go
+#!/usr/bin/python
 
 # https://www.zeekrewards.com/backoffice/back_office.asp
 
-# post username 
+# post username
 # post password
+
+login_host = 'www.zeekrewards.com'
+login_path = '/backoffice/back_office.asp'
+login_url = "https://{0}{1}".format(login_host, login_path)
+
+#raise Exception(login_url)
 
 class ZeekUser:
     def __init__(self, username, password):
@@ -25,23 +31,20 @@ def parse_command_line():
     args = parser.parse_args()
     opts = dict()
     if not args.zuser:
-        opts['zuser'] = raw_input("Zeek Username: ")
+        args.zuser = raw_input("Zeek Username: ")
     if not args.zpass:
-        opts['zpass'] = getpass.getpass()
+        args.zpass = getpass.getpass()
     return parser, args, opts
 
 if __name__ == '__main__':
     parser, args, opts = parse_command_line()
 
-    import httplib, urllib
+    import requests
 
-    params = urllib.urlencode({'@username': opts.zuser, '@password': opts.zpass })
-    headers = {"Content-type": "application/x-www-form-urlencoded",
-               "Accept": "text/plain"}
-    conn = httplib.HTTPSConnection("www.zeekrewards.com")
-    conn.request("POST", "", params, headers)
-    response = conn.getresponse()
-    print response.status, response.reason
+    params = {'username': args.zuser, 'password': args.zpass }
 
-    data = response.read()
-    print data
+    r = requests.post(login_url, data=params)
+    print r.status_code
+    print r.headers
+    print r.encoding
+    print r.text.encode("utf-8")
