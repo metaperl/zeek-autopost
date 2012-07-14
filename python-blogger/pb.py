@@ -1,4 +1,9 @@
+#!/usr/bin/python
+
 import rstdirective
+import random
+import os, time
+
 
 def login(username, password):
     import gdata.service
@@ -44,7 +49,13 @@ def is_draft(post):
     return post.control and post.control.draft and post.control.draft.text == 'yes'
 
 from docutils.examples import html_parts
-def read_blogpost(filename, rawhtml, rawhtmltitle):
+def read_blogpost(file_or_dir, rawhtml, rawhtmltitle):
+
+    if os.path.isdir(file_or_dir):
+        filename = "{0}/{1}".format(file_or_dir, random.choice(os.listdir(file_or_dir)))
+    else:
+        filename = file_or_dir
+
     if not rawhtml:
         parts = html_parts(open(filename, 'rb').read().decode('utf8'))
         title = parts['title']
@@ -52,6 +63,7 @@ def read_blogpost(filename, rawhtml, rawhtmltitle):
     else:
         title = opts.title
         content = open(filename, 'rb').read().decode('utf8')
+
     return title, content
 
 def dump_blogpost(filename):
@@ -84,7 +96,7 @@ def parse_command_line():
     parser.add_option("--listblogs", action="store_true", default=False)
     parser.add_option("--listposts", action="store_true", default=False)
     parser.add_option("--change", metavar="POSTID")
-    parser.add_option("--dump", action="store_true", default=False, 
+    parser.add_option("--dump", action="store_true", default=False,
         help="Write the HTML output to stdout instead of uploading to blogger")
 
     opts, args = parser.parse_args()
@@ -110,7 +122,7 @@ if __name__ == '__main__':
             title, content = read_blogpost(args[0], opts.rawhtml, opts.title)
             content = content.format(**{ 'zeekid' : opts.zeekid })
             service = login(opts.username, opts.password)
-            
+
             if opts.change:
                 entry = service.Get('/feeds/%s/posts/default/%s' % (opts.blog, opts.change))
                 update_entry(entry, title, content)
