@@ -16,12 +16,8 @@ login_path = '/backoffice/back_office.asp'
 
 my_config = {'verbose': sys.stderr}
 
-#raise Exception(login_url)
+s = requests.session()
 
-class ZeekUser:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
 
 def full_url(path):
     return "http://{0}/{1}".format(login_host, path)
@@ -46,36 +42,51 @@ def parse_command_line():
         args.zuser = raw_input("Zeek Username: ")
     if not args.zpass:
         args.zpass = getpass.getpass()
-    return parser, args, opts
+    return parser, args
 
 def login(args):
     params = {'username': args.zuser, 'password': args.zpass }
     login_url = full_url(login_path)
-    r = requests.post(login_url, data=params)
+    r = s.post(login_url, data=params)
     print r.status_code
     print r.headers
     print r.encoding
     html = r.text.encode("utf-8")
     return html
 
-def place_ad(html):
+def click_place_ad(html):
     soup = BeautifulSoup(html)
     elem = soup.find(href=re.compile("ad_options.asp"))
     print elem
     place_ad_url = backoffice_url(elem["href"])
-    r = requests.get(place_ad_url, config=my_config)
+    r = s.get(place_ad_url, config=my_config)
     print r.status_code
     print r.headers
     print r.encoding
     html = r.text.encode("utf-8")
     return html
 
-def register_ad(html):
+def click_register_ad(html):
     soup = BeautifulSoup(html)
     elem = soup.find(href=re.compile("ad_submit.asp"))
     print elem
     register_ad_url = backoffice_url(elem["href"])
-    r = requests.get(register_ad_url, config=my_config)
+    r = s.get(register_ad_url, config=my_config)
+    print r.status_code
+    print r.headers
+    print r.encoding
+    html = r.text.encode("utf-8")
+    return html
+
+def submit_ad(args):
+    url = backoffice_url("ad_submit.asp")
+    params = {
+        'venue' : "FreeZeekBids.BlogSpot.COM",
+        'adtype': "Text Ad",
+        'viewablelink': args.adurl
+    }
+
+    r = s.post(url, data=params, config=my_config)
     print r.status_code
     print r.headers
     print r.encoding
@@ -85,9 +96,10 @@ def register_ad(html):
 
 
 if __name__ == '__main__':
-    parser, args, opts = parse_command_line()
+    parser, args = parse_command_line()
 
     html = login(args)
-    html = place_ad(html) # simulate clicking on "PLACE YOUR AD"
-    html = register_ad(html) # click on Register your Ad to Qualify for Today's Cash Rewards
-    print html
+    html = click_place_ad(html) # simulate clicking on "PLACE YOUR AD"
+    html = click_register_ad(html) # click on Register your Ad to Qualify for Today's Cash Rewards
+    print "*** submitting ad ***"
+    print submit_ad(args)
