@@ -47,7 +47,7 @@ def parse_command_line():
 def login(args):
     params = {'username': args.zuser, 'password': args.zpass }
     login_url = full_url(login_path)
-    r = s.post(login_url, data=params)
+    r = s.post(login_url, config=my_config, data=params)
     print r.status_code
     print r.headers
     print r.encoding
@@ -78,13 +78,22 @@ def click_register_ad(html):
     html = r.text.encode("utf-8")
     return html
 
-def submit_ad(args):
+def submit_ad(html, args):
     url = backoffice_url("ad_submit.asp")
     params = {
         'venue' : "FreeZeekBids.BlogSpot.COM",
         'adtype': "Text Ad",
-        'viewablelink': args.adurl
+        'viewableat': args.adurl,
+        'Submit' : 'Submit',
+        'approvedtext' : ""
     }
+
+    print html
+    soup = BeautifulSoup(html)
+    for hidden in "username CD submitting".split():
+        elem = soup.find(attrs={"name" : hidden})
+        print "search for {0} yielded {1}".format(hidden, elem)
+        params[hidden] = elem["value"]
 
     r = s.post(url, data=params, config=my_config)
     print r.status_code
@@ -102,4 +111,4 @@ if __name__ == '__main__':
     html = click_place_ad(html) # simulate clicking on "PLACE YOUR AD"
     html = click_register_ad(html) # click on Register your Ad to Qualify for Today's Cash Rewards
     print "*** submitting ad ***"
-    print submit_ad(args)
+    print submit_ad(html,args)
