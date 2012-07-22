@@ -45,6 +45,12 @@ def listposts(service, blogid):
         raise Exception(hl.href)
         print post.GetEditLink().href.split('/')[-1], post.title.text, "[DRAFT]" if is_draft(post) else ""
 
+def lastpost(service, blogid):
+    feed = service.Get('/feeds/' + blogid + '/posts/default')
+    post = feed.entry[-1]
+    hl = post.GetHtmlLink()
+    return hl.href
+
 def is_draft(post):
     return post.control and post.control.draft and post.control.draft.text == 'yes'
 
@@ -131,3 +137,4 @@ if __name__ == '__main__':
                 service.Post(
                     create_entry(title, content),
                     '/feeds/' + opts.blog + '/posts/default')
+                print lastpost(login(opts.username, opts.password), opts.blog)

@@ -1,9 +1,10 @@
-# 
+#
 
 daily.register
 daily.post
+config.py
 
-# 
+#
 
 *.py[co]
 
@@ -35,5 +36,5 @@ pip-log.txt
 
 # Emacs
 
-[#]*[#] 
+[#]*[#]
 *~
