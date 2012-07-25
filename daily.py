@@ -15,6 +15,7 @@ for zeekid,zeekpass in config.users.items():
      ],
         cwd="python-blogger"
     )
+
     html_result = subprocess.check_output(
         ["./pr.py",
          "--zuser", zeekid,

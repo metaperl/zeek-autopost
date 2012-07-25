@@ -57,8 +57,10 @@ def login(args):
 def click_place_ad(html):
     soup = BeautifulSoup(html)
     elem = soup.find(href=re.compile("ad_options.asp"))
-    print elem
+    href = elem['href']
+
     place_ad_url = backoffice_url(elem["href"])
+    #raise Exception(place_ad_url)
     r = s.get(place_ad_url, config=my_config)
     print r.status_code
     print r.headers
