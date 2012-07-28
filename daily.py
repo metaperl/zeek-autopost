@@ -4,7 +4,7 @@ import subprocess
 
 import config
 
-for zeekid,zeekpass in config.users.items():
+for zeekid,userdict in config.users.items():
     ad_url = subprocess.check_output(
         ["./pb.py",
          "--blog", str(config.blog['id']),
@@ -19,8 +19,9 @@ for zeekid,zeekpass in config.users.items():
     html_result = subprocess.check_output(
         ["./pr.py",
          "--zuser", zeekid,
-         "--zpass", zeekpass,
-         ad_url
+         "--zpass", userdict['zeekpass'],
+         ad_url,
+         userdict['email']
      ],
         cwd="python-rewards"
     )

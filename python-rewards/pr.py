@@ -35,6 +35,7 @@ def parse_command_line():
     parser.add_argument("--zuser", help='Zeek Rewards username')
     parser.add_argument("--zpass", help='Zeek Rewards password')
     parser.add_argument("adurl", help='The URL of the ad you posted today')
+    parser.add_argument("notifyemail", help='The email to send confirmation results to')
 
     args = parser.parse_args()
     opts = dict()
@@ -90,7 +91,7 @@ def submit_ad(html, args):
         'approvedtext' : ""
     }
 
-    print html
+    #print html
     soup = BeautifulSoup(html)
     for hidden in "username CD submitting".split():
         elem = soup.find(attrs={"name" : hidden})
@@ -104,6 +105,34 @@ def submit_ad(html, args):
     html = r.text.encode("utf-8")
     return html
 
+def email_confirmation(email, html, user):
+    # Import smtplib for the actual sending function
+    import smtplib
+
+    # Import the email modules we'll need
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    text = 'hi there'
+    msg = MIMEMultipart('alternative')
+    part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
+    msg.attach(part1)
+    msg.attach(part2)
+
+
+    # me == the sender's email address
+    # you == the recipient's email address
+    msg['Subject'] = 'Zeek posting for {0}'.format(user)
+    msg['From'] = 'thequietcenter@gmail.com'
+    msg['To'] = email
+
+    # Send the message via our own SMTP server, but don't include the
+    # envelope header.
+    s = smtplib.SMTP('localhost')
+    s.set_debuglevel(1)
+    s.sendmail(msg['To'], [msg['From']], msg.as_string())
+    s.quit()
 
 
 if __name__ == '__main__':
@@ -113,4 +142,5 @@ if __name__ == '__main__':
     html = click_place_ad(html) # simulate clicking on "PLACE YOUR AD"
     html = click_register_ad(html) # click on Register your Ad to Qualify for Today's Cash Rewards
     print "*** submitting ad ***"
-    print submit_ad(html,args)
+    html = submit_ad(html,args)
+    email_confirmation(args.notifyemail, html, args.zuser)
