@@ -113,25 +113,31 @@ def email_confirmation(email, html, user):
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
 
-    text = 'hi there'
     msg = MIMEMultipart('alternative')
-    part1 = MIMEText(text, 'plain')
-    part2 = MIMEText(html, 'html')
-    msg.attach(part1)
-    msg.attach(part2)
-
 
     # me == the sender's email address
     # you == the recipient's email address
     msg['Subject'] = 'Zeek posting for {0}'.format(user)
-    msg['From'] = 'thequietcenter@gmail.com'
     msg['To'] = email
+    msg['From'] = 'thequietcenter@gmail.com'
+
+    text = "Hi!\nHow are you?\nHere is the link you wanted:\nhttp://www.python.org"
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    #part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
+
+    # Attach parts into message container.
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    #msg.attach(part1)
+    msg.attach(part2)
 
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
     s = smtplib.SMTP('localhost')
     s.set_debuglevel(1)
-    s.sendmail(msg['To'], [msg['From']], msg.as_string())
+    s.sendmail(msg['From'], [msg['To']], msg.as_string())
     s.quit()
 
 
