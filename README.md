@@ -1,9 +1,15 @@
 zeek-autopost
 =============
 
-Free source code to (1) automatically post an advertisement encouraging
-people to take some sample bids in a penny auction ad. (2)
-automatically record the URL of the advertisement in the advertisers
+[Zeekler](http://princepawn.zeekler.com) is a penny auction
+website. Affiliates of this penny auction are required to post a
+classifieds ad somewhere on the internet each day and record the URL
+of their post in their back-office.
+
+This free source code addresses both of these requirements.
+* It automatically posts an advertisement encouraging people to take
+some sample bids in a penny auction ad.
+* It automatically records the URL of the advertisement in the advertisers
 back-office so that she receives reward points for posting her ad.
 
 # Usage
